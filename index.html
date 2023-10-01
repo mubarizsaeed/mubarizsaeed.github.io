@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display User Profiles</title>
+    <style>
+        body { text-align: center; }
+        #header { background-color: #ffffff; color: white; padding: 20px; }
+        #userProfiles { background-color: lightgray; }
+        .userProfile { margin: 20px; }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <img src="mubz-banner.png" alt="Mubz Logo" width="900">
+    </div>
+
+    <div id="userProfiles">
+        <!-- User profiles will be displayed here -->
+    </div>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-app.js";
+        import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.4.0/firebase-database.js";
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCMcooIgMJm-gCx9xhW9WNImsib7c_dkcw",
+            authDomain: "seraphic-hawk-248819.firebaseapp.com",
+            databaseURL: "https://seraphic-hawk-248819-default-rtdb.firebaseio.com",
+            projectId: "seraphic-hawk-248819",
+            storageBucket: "seraphic-hawk-248819.appspot.com",
+            messagingSenderId: "390651397878",
+            appId: "1:390651397878:web:04fb4aefc4ba2eca0e4ed7",
+            measurementId: "G-5BWCNM4G2V"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        // Define the IDs and names of the users to display
+        const users = [
+            { id: "PqWHZgP7R2XcdLvdUpaEefRAMrD3", name: "User 1" },
+            { id: "WVHRJTogQBfWGRvmurNxtGJXcA33", name: "User 2" }
+        ];
+
+        const userProfiles = document.querySelector("#userProfiles");
+
+        // Track whether each user's profile is displayed
+        const displayedProfiles = {};
+
+        // Fetch and display user profiles
+        users.forEach(user => {
+            const userProfileContainer = document.createElement("div");
+            userProfileContainer.classList.add("userProfile");
+
+            // Create a button for each user
+            const userButton = document.createElement("button");
+            userButton.textContent = `Toggle ${user.name}'s Profile`;
+            userButton.addEventListener('click', () => {
+                toggleUserProfile(user.id);
+            });
+
+            userProfileContainer.appendChild(userButton);
+            userProfiles.appendChild(userProfileContainer);
+
+            // Initialize displayedProfiles state
+            displayedProfiles[user.id] = false;
+        });
+
+        function toggleUserProfile(userID) {
+            if (displayedProfiles[userID]) {
+                // If the profile is displayed, remove it
+                const profileToRemove = document.querySelector(`#profile-${userID}`);
+                if (profileToRemove) {
+                    profileToRemove.remove();
+                }
+                displayedProfiles[userID] = false;
+            } else {
+                // If the profile is not displayed, fetch and display it
+                getUserProfile(userID);
+            }
+        }
+
+        function getUserProfile(userID) {
+            const dbref = ref(db);
+
+            get(child(dbref, userID))
+            .then((snapshot) => {
+                if (snapshot.exists()) {
+                    const user = snapshot.val();
+                    displayUserProfile(user, userID);
+                } else {
+                    alert("No data found for user with ID: " + userID);
+                }
+            })
+            .catch((error) => {
+                alert(error);
+            });
+        }
+
+        function displayUserProfile(user, userID) {
+            // Create a container div for each user profile
+            const userProfileContainer = document.createElement("div");
+            userProfileContainer.classList.add("userProfile");
+            userProfileContainer.id = `profile-${userID}`;
+
+            // Create elements to display user profile data
+            for (const key in user) {
+                const profileElement = document.createElement("p");
+                profileElement.textContent = `${key}: ${user[key]}`;
+                userProfileContainer.appendChild(profileElement);
+            }
+
+            // Append the user profile container to the "userProfiles" div
+            userProfiles.appendChild(userProfileContainer);
+
+            // Update displayedProfiles state
+            displayedProfiles[userID] = true;
+        }
+    </script>
+</body>
+</html>
+
+
+<iframe src="https://thunkable.site/w/NTvUz6QoxpL-ZnY3V2wGT?from=x" title="Chop Down the Tree Thunkable App" height = 900 width = 500></iframe>
